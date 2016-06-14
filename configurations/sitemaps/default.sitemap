@@ -1,0 +1,10 @@
+sitemap demo label="Open Cushion"
+{
+	Frame {
+		Text item=weight
+		Text item=sitzt
+		Text item=alarm
+		Selection item=duration label="Timmer selection" mappings=[10="10 sec", 60="1 min", 600="10 min", 1800="30 min", 3600="1h"]
+	}
+
+}

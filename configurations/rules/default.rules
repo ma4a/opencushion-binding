@@ -1,0 +1,42 @@
+import org.openhab.core.library.types.*
+import org.openhab.core.persistence.*
+import org.openhab.model.script.actions.*
+
+var Timer timer = null
+var int l_time = 10
+var String onCommand = "curl@@-X@@POST@@http://cushion.local/switch/C/on"
+var String offCommand = "curl@@-X@@POST@@http://cushion.local/switch/C/off"
+rule "duration changend"
+when
+	Item duration received update
+then
+	l_time = (duration.state as DecimalType).intValue
+end
+
+rule "timer cushen"
+when
+	Item weight received update
+then
+	
+	var Number weight_st = weight.state as DecimalType
+	if(weight_st > 2.0) {
+		postUpdate(sitzt, "Ja")
+		if(timer==null) {
+			// first ON command, so create a timer to turn the light off again
+			timer = createTimer(now.plusSeconds(l_time)) [|
+				postUpdate(alarm, "ON")
+				playSound("doorbell.mp3")
+				//Note: The commandLine variable has to use a special format where @@ separates the arguments. For example the bash command touch somefile will have to be written as touch@@somefile. See Samples and Tricks (https://github.com/openhab/openhab/wiki/Samples-Tricks#how-to-use-the-lifx-beta-api-via-executecommandline-and-curl) for a larger example.
+				executeCommandLine(onCommand)
+			]
+		}
+	} else {
+		postUpdate(sitzt, "Nein")
+		if(timer!=null) {
+			postUpdate(alarm, "OFF")
+			timer.cancel
+			timer = null
+			executeCommandLine(offCommand)
+		}	
+	}
+end
