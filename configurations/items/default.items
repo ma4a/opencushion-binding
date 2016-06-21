@@ -3,3 +3,7 @@ String sitzt "Sitzt [%s]"
 String alarm "alarm [%s]"
 
 Number duration "timer"
+
+Switch networkLamp_A {http=">[ON:POST:http://cushion.local/switch/A/on]" >[OFF:POST:http://cushion.local/switch/A/on]"}
+Switch networkLamp_B {http=">[ON:POST:http://cushion.local/switch/B/on]" >[OFF:POST:http://cushion.local/switch/B/on]"}
+Switch networkLamp_C {http=">[ON:POST:http://cushion.local/switch/C/on]" >[OFF:POST:http://cushion.local/switch/C/on]"}
