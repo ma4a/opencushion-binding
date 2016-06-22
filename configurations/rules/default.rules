@@ -4,6 +4,20 @@ import org.openhab.model.script.actions.*
 
 var Timer timer = null
 var int l_time = 10
+var int l_be_s_a = 2
+var int l_be_s_b = 1
+var int l_be_s_c = 3
+
+rule "startup"
+when
+System started
+then	
+	postUpdate(duration,l_time)
+	postUpdate(be_s_a,l_be_s_a)
+	postUpdate(be_s_b,l_be_s_b)
+	postUpdate(be_s_c,l_be_s_c)
+
+end
 
 rule "duration changend"
 when
@@ -25,7 +39,19 @@ then
 			timer = createTimer(now.plusSeconds(l_time)) [|
 				postUpdate(alarm, "ON")
 				playSound("doorbell.mp3")
-				networkLamp_C.sendCommand(ON)
+				switch (l_be_s_a) {
+				case 2: {networkLamp_A.sendCommand(ON)}
+				case 3: {networkLamp_A.sendCommand(OFF)}
+				}
+				switch (l_be_s_b) {
+				case 2: {networkLamp_B.sendCommand(ON)}
+				case 3: {networkLamp_B.sendCommand(OFF)}
+				}
+				switch (l_be_s_c) {
+				case 2: {networkLamp_C.sendCommand(ON)}
+				case 3: {networkLamp_C.sendCommand(OFF)}
+				}
+				
 			]
 		}
 	} else {
@@ -34,7 +60,40 @@ then
 			postUpdate(alarm, "OFF")
 			timer.cancel
 			timer = null
-			networkLamp_C.sendCommand(OFF)
+			switch (l_be_s_a) {
+				case 2: {networkLamp_A.sendCommand(OFF)}
+				case 3: {networkLamp_A.sendCommand(ON)}
+				}
+				switch (l_be_s_b) {
+				case 2: {networkLamp_B.sendCommand(OFF)}
+				case 3: {networkLamp_B.sendCommand(ON)}
+				}
+				switch (l_be_s_c) {
+				case 2: {networkLamp_C.sendCommand(OFF)}
+				case 3: {networkLamp_C.sendCommand(ON)}
+				}
 		}	
 	}
+end
+
+
+rule "be_s_a changend"
+when
+	Item be_s_a received update
+then
+	l_be_s_a = (be_s_a.state as DecimalType).intValue
+end
+
+rule "be_s_b changend"
+when
+	Item be_s_b received update
+then
+	l_be_s_b = (be_s_b.state as DecimalType).intValue
+end
+
+rule "be_s_c changend"
+when
+	Item be_s_c received update
+then
+	l_be_s_c = (be_s_c.state as DecimalType).intValue
 end
