@@ -7,9 +7,9 @@ sitemap demo label="Open Cushion"
 		
 		Text label=config icon="settings" {
 			Selection item=duration label="Timmer selection" mappings=[3="3 sec", 10="10 sec", 60="1 min", 600="10 min", 1800="30 min", 3600="1h"]
-			Selection item=be_s_a label="behave switch A" mappings=[1="None", 2="On", 3="Off"]
-			Selection item=be_s_b label="behave switch B" mappings=[1="None", 2="On", 3="Off"]
-			Selection item=be_s_c label="behave switch C" mappings=[1="None", 2="On", 3="Off"]
+			Selection item=be_s_a label="behave switch A" mappings=[1="None", 2="On", 3="Off", 4="delay On", 5="delay Off"]
+			Selection item=be_s_b label="behave switch B" mappings=[1="None", 2="On", 3="Off", 4="delay On", 5="delay Off"]
+			Selection item=be_s_c label="behave switch C" mappings=[1="None", 2="On", 3="Off", 4="delay On", 5="delay Off"]
 
 			
 		}

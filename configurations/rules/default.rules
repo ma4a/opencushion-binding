@@ -3,10 +3,11 @@ import org.openhab.core.persistence.*
 import org.openhab.model.script.actions.*
 
 var Timer timer = null
+var Timer delay = null
 var int l_time = 10
 var int l_be_s_a = 2
-var int l_be_s_b = 1
-var int l_be_s_c = 3
+var int l_be_s_b = 4
+var int l_be_s_c = 5
 
 rule "startup"
 when
@@ -51,6 +52,26 @@ then
 				case 2: {networkLamp_C.sendCommand(ON)}
 				case 3: {networkLamp_C.sendCommand(OFF)}
 				}
+				if(delay==null) {
+			// first ON command, so create a timer to turn the light off again
+			delay = createTimer(now.plusSeconds(3)) [|
+				postUpdate(alarm, "ON")
+				playSound("doorbell.mp3")
+				switch (l_be_s_a) {
+				case 4: {networkLamp_A.sendCommand(ON)}
+				case 5: {networkLamp_A.sendCommand(OFF)}
+				}
+				switch (l_be_s_b) {
+				case 4: {networkLamp_B.sendCommand(ON)}
+				case 5: {networkLamp_B.sendCommand(OFF)}
+				}
+				switch (l_be_s_c) {
+				case 4: {networkLamp_C.sendCommand(ON)}
+				case 5: {networkLamp_C.sendCommand(OFF)}
+				}
+				
+			]
+		}
 				
 			]
 		}
@@ -60,17 +81,25 @@ then
 			postUpdate(alarm, "OFF")
 			timer.cancel
 			timer = null
+			delay.cancel
+			delay = null
 			switch (l_be_s_a) {
 				case 2: {networkLamp_A.sendCommand(OFF)}
+				case 4: {networkLamp_A.sendCommand(OFF)}
 				case 3: {networkLamp_A.sendCommand(ON)}
+				case 5: {networkLamp_A.sendCommand(ON)}
 				}
 				switch (l_be_s_b) {
 				case 2: {networkLamp_B.sendCommand(OFF)}
+				case 4: {networkLamp_B.sendCommand(OFF)}
 				case 3: {networkLamp_B.sendCommand(ON)}
+				case 5: {networkLamp_B.sendCommand(ON)}
 				}
 				switch (l_be_s_c) {
 				case 2: {networkLamp_C.sendCommand(OFF)}
+				case 4: {networkLamp_C.sendCommand(OFF)}
 				case 3: {networkLamp_C.sendCommand(ON)}
+				case 5: {networkLamp_C.sendCommand(ON)}
 				}
 		}	
 	}
