@@ -1,0 +1,7 @@
+Die Datein in die lokale Openhab Instanz kopieren.
+
+Bei Bedarf den Namen der Datein anpassen um sie über eine andere Sitemap zu ereichen
+
+Bsp cushion.items cushion.sitemap und cushion.rules  
+
+Die Sitemap kann dann über http://localhost:8080/openhab.app?sitemap=cushen aufgerufen werden.
