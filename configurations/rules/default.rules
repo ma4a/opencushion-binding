@@ -2,32 +2,34 @@ import org.openhab.core.library.types.*
 import org.openhab.core.persistence.*
 import org.openhab.model.script.actions.*
 
-var Timer timer = null
-var Timer delay = null
-var int l_time = 10
-var int l_be_s_a = 2
-var int l_be_s_b = 4
-var int l_be_s_c = 5
+var Timer first_timer = null
+var Timer second_timer = null
+var int local_time_to_first_alarm_in_sec = 10
+var int local_time_to_second_alarm_in_sec = 3
+var int local_behavior_switch_a = 2
+var int local_behavior_switch_b = 4
+var int local_behavior_switch_c = 5
 
 rule "startup"
 when
 System started
 then	
-	postUpdate(duration,l_time)
-	postUpdate(be_s_a,l_be_s_a)
-	postUpdate(be_s_b,l_be_s_b)
-	postUpdate(be_s_c,l_be_s_c)
+	// Initialize the Siwtches and the timer
+	postUpdate(time_to_first_alarm_in_sec,local_time_to_first_alarm_in_sec)
+	postUpdate(time_to_second_alarm_in_sec,local_time_to_second_alarm_in_sec)
+	postUpdate(behavior_switch_a,local_behavior_switch_a)
+	postUpdate(behavior_switch_b,local_behavior_switch_b)
+	postUpdate(behavior_switch_c,local_behavior_switch_c)
 
 end
 
-rule "duration changend"
-when
-	Item duration received update
-then
-	l_time = (duration.state as DecimalType).intValue
-end
 
-rule "timer cushen"
+
+
+
+
+
+rule "first_timer cushen"
 when
 	Item weight received update
 then
@@ -35,39 +37,39 @@ then
 	var Number weight_st = weight.state as DecimalType
 	if(weight_st > 2.0) {
 		postUpdate(sitzt, "Ja")
-		if(timer==null) {
-			// first ON command, so create a timer to turn the light off again
-			timer = createTimer(now.plusSeconds(l_time)) [|
+		if(first_timer==null) {
+			// Initialize the first alarm first_timer
+			first_timer = createTimer(now.plusSeconds(local_time_to_first_alarm_in_sec)) [|
+
 				postUpdate(alarm, "ON")
-				playSound("doorbell.mp3")
-				switch (l_be_s_a) {
-				case 2: {networkLamp_A.sendCommand(ON)}
-				case 3: {networkLamp_A.sendCommand(OFF)}
+				//Switch all not delayed devices
+				switch (local_behavior_switch_a) {
+					case 2: {networkLamp_A.sendCommand(ON)}
+					case 3: {networkLamp_A.sendCommand(OFF)}
 				}
-				switch (l_be_s_b) {
-				case 2: {networkLamp_B.sendCommand(ON)}
-				case 3: {networkLamp_B.sendCommand(OFF)}
+				switch (local_behavior_switch_b) {
+					case 2: {networkLamp_B.sendCommand(ON)}
+					case 3: {networkLamp_B.sendCommand(OFF)}
 				}
-				switch (l_be_s_c) {
-				case 2: {networkLamp_C.sendCommand(ON)}
-				case 3: {networkLamp_C.sendCommand(OFF)}
+				switch (local_behavior_switch_c) {
+					case 2: {networkLamp_C.sendCommand(ON)}
+					case 3: {networkLamp_C.sendCommand(OFF)}
 				}
-				if(delay==null) {
-			// first ON command, so create a timer to turn the light off again
-			delay = createTimer(now.plusSeconds(3)) [|
-				postUpdate(alarm, "ON")
-				playSound("doorbell.mp3")
-				switch (l_be_s_a) {
-				case 4: {networkLamp_A.sendCommand(ON)}
-				case 5: {networkLamp_A.sendCommand(OFF)}
+				if(second_timer==null) {
+			// Initialize the second alarm first_timer
+			second_timer = createTimer(now.plusSeconds(local_time_to_second_alarm_in_sec)) [|
+				//Switch all delayed devices
+				switch (local_behavior_switch_a) {
+					case 4: {networkLamp_A.sendCommand(ON)}
+					case 5: {networkLamp_A.sendCommand(OFF)}
 				}
-				switch (l_be_s_b) {
-				case 4: {networkLamp_B.sendCommand(ON)}
-				case 5: {networkLamp_B.sendCommand(OFF)}
+				switch (local_behavior_switch_b) {
+					case 4: {networkLamp_B.sendCommand(ON)}
+					case 5: {networkLamp_B.sendCommand(OFF)}
 				}
-				switch (l_be_s_c) {
-				case 4: {networkLamp_C.sendCommand(ON)}
-				case 5: {networkLamp_C.sendCommand(OFF)}
+				switch (local_behavior_switch_c) {
+					case 4: {networkLamp_C.sendCommand(ON)}
+					case 5: {networkLamp_C.sendCommand(OFF)}
 				}
 				
 			]
@@ -77,52 +79,71 @@ then
 		}
 	} else {
 		postUpdate(sitzt, "Nein")
-		if(timer!=null) {
+		if(first_timer!=null) {
 			postUpdate(alarm, "OFF")
-			timer.cancel
-			timer = null
-			delay.cancel
-			delay = null
-			switch (l_be_s_a) {
+			// Rest first and second first_timer
+			first_timer.cancel
+			first_timer = null
+			second_timer.cancel
+			second_timer = null
+			switch (local_behavior_switch_a) {
 				case 2: {networkLamp_A.sendCommand(OFF)}
 				case 4: {networkLamp_A.sendCommand(OFF)}
 				case 3: {networkLamp_A.sendCommand(ON)}
 				case 5: {networkLamp_A.sendCommand(ON)}
-				}
-				switch (l_be_s_b) {
+			}
+			switch (local_behavior_switch_b) {
 				case 2: {networkLamp_B.sendCommand(OFF)}
 				case 4: {networkLamp_B.sendCommand(OFF)}
 				case 3: {networkLamp_B.sendCommand(ON)}
 				case 5: {networkLamp_B.sendCommand(ON)}
-				}
-				switch (l_be_s_c) {
+			}
+			switch (local_behavior_switch_c) {
 				case 2: {networkLamp_C.sendCommand(OFF)}
 				case 4: {networkLamp_C.sendCommand(OFF)}
 				case 3: {networkLamp_C.sendCommand(ON)}
 				case 5: {networkLamp_C.sendCommand(ON)}
-				}
+			}
 		}	
 	}
 end
 
 
-rule "be_s_a changend"
+//Set the behavior of the switches
+
+rule "behavior_switch_a changend"
 when
-	Item be_s_a received update
+	Item behavior_switch_a received update
 then
-	l_be_s_a = (be_s_a.state as DecimalType).intValue
+	local_behavior_switch_a = (behavior_switch_a.state as DecimalType).intValue
 end
 
-rule "be_s_b changend"
+rule "behavior_switch_b changend"
 when
-	Item be_s_b received update
+	Item behavior_switch_b received update
 then
-	l_be_s_b = (be_s_b.state as DecimalType).intValue
+	local_behavior_switch_b = (behavior_switch_b.state as DecimalType).intValue
 end
 
-rule "be_s_c changend"
+rule "behavior_switch_c changend"
 when
-	Item be_s_c received update
+	Item behavior_switch_c received update
 then
-	l_be_s_c = (be_s_c.state as DecimalType).intValue
+	local_behavior_switch_c = (behavior_switch_c.state as DecimalType).intValue
+end
+
+//Set the first_timer
+
+rule "time_to_first_alarm_in_sec changend"
+when
+	Item time_to_first_alarm_in_sec received update
+then
+	local_time_to_first_alarm_in_sec = (time_to_first_alarm_in_sec.state as DecimalType).intValue
+end
+
+rule "local_time_to_second_alarm_in_sec changend"
+when
+	Item local_time_to_second_alarm_in_sec received update
+then
+	local_time_to_second_alarm_in_sec = (time_to_second_alarm_in_sec.state as DecimalType).intValue
 end

@@ -2,13 +2,14 @@ Group switch
 
 Number weight "Current weight [%f]" {http="<[http://cushion.local:80:JS(getValue.js)]" }
 String sitzt "Sitzt [%s]"
-String alarm "alarm [%s]" 
+String alarm "Alarm [%s]" 
 
-Number duration "timer" 
+Number time_to_first_alarm_in_sec "timer" 
+Number time_to_second_alarm_in_sec "timer"
 
-Number be_s_a "behave switch A"
-Number be_s_b "behave switch B"
-Number be_s_c "behave switch C"
+Number behavior_switch_a "behave switch A"
+Number behavior_switch_b "behave switch B"
+Number behavior_switch_c "behave switch C"
 
 Switch networkLamp_A "Schalter A"	(switch) {http=">[ON:POST:http://cushion.local/switch/A/on] >[OFF:POST:http://cushion.local/switch/A/off]"} 
 Switch networkLamp_B "Schalter B" (switch) {http=">[ON:POST:http://cushion.local/switch/B/on] >[OFF:POST:http://cushion.local/switch/B/off]"}	
